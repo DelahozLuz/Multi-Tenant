@@ -1,0 +1,79 @@
+<mat-toolbar class="app-toolbar custom-gradient-bg text-white">
+  <div class="toolbar-left">
+  </div>
+  <div class="toolbar-right">
+    <span class="rol-badge">Rol: {{ authService.currentRol() }}</span>
+    <button mat-icon-button (click)="logout()" matTooltip="Cerrar Sesión" class="text-white">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="main-container">
+  @if (canCreate()) {
+    <mat-card class="custom-card border-0 shadow-sm">
+      <mat-card-header class="mb-3">
+        <mat-icon mat-card-avatar class="text-primary mt-2">add_circle</mat-icon>
+        <mat-card-title class="fw-bold">Nuevo Proyecto</mat-card-title>
+        <mat-card-subtitle>Completa los campos para crear un nuevo proyecto</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="create-form d-flex gap-3 align-items-start">
+          <mat-form-field appearance="outline" class="flex-grow-1 no-bottom-space">
+            <mat-label>Nombre del Proyecto</mat-label>
+            <input matInput formControlName="nombre" placeholder="Ej. Landing Page App">
+            @if (form.get('nombre')?.hasError('required') && form.get('nombre')?.touched) {
+              <mat-error>El nombre es obligatorio</mat-error>
+            }
+          </mat-form-field>
+          <button mat-flat-button class="btn-create" type="submit" [disabled]="form.invalid">
+            <mat-icon>add</mat-icon> Crear Proyecto
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card class="custom-card border-0 shadow-sm mt-4">
+    <mat-card-header class="mb-3 border-bottom pb-3">
+      <mat-icon mat-card-avatar class="text-dark mt-2">folder</mat-icon>
+      <mat-card-title class="fw-bold text-dark">Proyectos Disponibles</mat-card-title>
+      <mat-card-subtitle>{{ projects.length }} proyecto{{ projects.length !== 1 ? 's' : '' }} registrado{{ projects.length !== 1 ? 's' : '' }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content class="pt-3">
+      @if (projects.length === 0) {
+        <div class="empty-state bg-light rounded-4">
+          <p class="fw-medium text-dark fs-5">No hay proyectos registrados.</p>
+          @if (canCreate()) {
+            <p class="empty-hint">Crea tu primer proyecto usando el formulario de arriba.</p>
+          }
+        </div>
+      } @else {
+        <mat-list class="project-list d-flex flex-column gap-3">
+          @for (p of projects; track p.id) {
+            <mat-list-item class="project-item rounded-4 shadow-sm border-0 px-2 py-1">
+              <div matListItemIcon class="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 42px; height: 42px;">
+                <mat-icon>folder</mat-icon>
+              </div>
+              <div matListItemTitle class="project-name fw-medium fs-6">{{ p.nombre }}</div>
+
+              <div matListItemMeta class="project-actions">
+                @if (canCreate()) {
+                  <button mat-button class="btn-edit-soft" (click)="updateProject(p)" matTooltip="Editar">
+                    <mat-icon>edit</mat-icon> Editar
+                  </button>
+                }
+                @if (canDelete()) {
+                  <button mat-button class="btn-delete-soft" (click)="deleteProject(p)" matTooltip="Eliminar">
+                    <mat-icon>delete</mat-icon> Eliminar
+                  </button>
+                }
+              </div>
+            </mat-list-item>
+          }
+        </mat-list>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
